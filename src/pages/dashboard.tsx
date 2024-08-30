@@ -13,7 +13,7 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [url, setUrl] = useState("");
-  const [startupInfo, setStartupInfo] = useState(null);
+  const [startupInfo, setStartupInfo] = useState<Record<string, unknown>>({});
   const [step, setStep] = useState(1);
   const totalSteps = 3;
 
@@ -37,13 +37,13 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleStartupInfoSubmit = (data) => {
+  const handleStartupInfoSubmit = (data: Record<string, unknown>) => {
     console.log("Startup info submitted:", data);
     setStartupInfo({ ...startupInfo, ...data });
     setStep(3);
   };
 
-  const handleFundraisingSubmit = (data) => {
+  const handleFundraisingSubmit = (data: Record<string, unknown>) => {
     console.log("Fundraising info submitted:", data);
     // Here you would typically send this data to your backend
     // or move to the next step in your process
@@ -114,10 +114,10 @@ const Dashboard: React.FC = () => {
             {step === 3 && (
               <FundraisingForm
                 initialData={{
-                  fundAsk: startupInfo?.fundAsk || 0,
-                  fundingStage: startupInfo?.fundingStage || "",
-                  lastFundingAmount: startupInfo?.lastFundingRound?.amount || 0,
-                  lastFundingStage: startupInfo?.lastFundingRound?.stage || "",
+                  fundAsk: typeof startupInfo?.fundAsk === 'number' ? startupInfo?.fundAsk : 0,
+                  fundingStage: typeof startupInfo?.fundingStage === 'string' ? startupInfo?.fundingStage : "",
+                  lastFundingAmount: (startupInfo?.lastFundingRound as any)?.amount ?? 0,
+                  lastFundingStage: (startupInfo?.lastFundingRound as any)?.stage ?? "",
                 }}
                 onSubmit={handleFundraisingSubmit}
               />

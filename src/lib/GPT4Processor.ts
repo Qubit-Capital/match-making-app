@@ -13,15 +13,15 @@ const StartupSchema = z.object({
     verticals: z.array(z.enum(VERTICALS)),
     startupLocation: z.string(),
     startupIntro: z.string(),
-    fundAsk: z.number({ float: true }),
+    fundAsk: z.number(),
     fundingStage: z.enum(["Seed", "Series A", "Series B", "Series C", "Series D+"]),
     lastFundingRound: z.object({
-        amount: z.number({ float: true }),
+        amount: z.number(),
         stage: z.enum(["Bootstrapped", "Pre-seed", "Seed", "Series A", "Series B", "Series C", "Series D+"]),
     }),
 });
 
-async function extractStructuredData(generalInfo, websiteContent) {
+export async function extractStructuredData(generalInfo: string, websiteContent: string) {
     const prompt = `
     Extract structured information about a startup based on the following data:
 
@@ -68,5 +68,3 @@ async function extractStructuredData(generalInfo, websiteContent) {
         throw error;
     }
 }
-
-module.exports = { extractStructuredData };

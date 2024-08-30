@@ -21,7 +21,7 @@ export default async function handler(
       rawInfo.websiteContent
     )
     res.json(structuredData)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Server error:', error)
     res.status(500).json({ 
       error: 'Failed to extract startup information', 

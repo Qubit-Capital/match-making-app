@@ -8,7 +8,7 @@ const client = new OpenAI({
 
 const sysMsg = `You are a world class researcher at Qubit Capital, a digital investment bank which helps startups connect and raise capital from potential investors. Provide accurate information about the given startup. If you can't find specific information, clearly state that. Always include the source URL for funding information if available.`;
 
-async function perplexityAPICall(userMsg) {
+async function perplexityAPICall(userMsg: string) {
   try {
     const response = await client.chat.completions.create({
       model: modelName,
@@ -19,12 +19,12 @@ async function perplexityAPICall(userMsg) {
       temperature: 0,
     });
     return { response, error: false };
-  } catch (error) {
+  } catch (error: any) {
     return { response: error.toString(), error: true };
   }
 }
 
-async function getGeneralStartupInfo(website) {
+export async function getGeneralStartupInfo(website: string) {
   const infoMsg = `Provide general information about the startup ${website}. Include details about the company, its location, and any funding information you can find. If you find funding information, please provide the source URL. Do not make up any information. If you can't find certain details, clearly state that the information is not available. Focus on getting the funding details and the company location.`;
   
   try {
@@ -40,5 +40,3 @@ async function getGeneralStartupInfo(website) {
     throw error;
   }
 }
-
-module.exports = { getGeneralStartupInfo };

@@ -1,9 +1,18 @@
 import { getGeneralStartupInfo } from '@/lib/PerplexityApi';
 import axios from 'axios';
 
-async function fetchWebsiteContent(url) {
+function normalizeUrl(url: string): string {
+    // Add https:// if not present and handle www.
+    if (!/^https?:\/\//i.test(url)) {
+        url = url.startsWith('www.') ? 'https://' + url : 'https://www.' + url;
+    }
+    return url;
+}
+
+async function fetchWebsiteContent(url: any) {
     try {
-        const response = await axios.get(`https://r.jina.ai/${url}`);
+        const normalizedUrl = normalizeUrl(url);
+        const response = await axios.get(`https://r.jina.ai/${normalizedUrl}`);
         console.log(`Fetched content for ${url}:`, response.data.substring(0, 500) + '...');
         return response.data;
     } catch (error) {
@@ -12,7 +21,7 @@ async function fetchWebsiteContent(url) {
     }
 }
 
-async function extractStartupInfo(url) {
+export async function extractStartupInfo(url: any) {
     try {
         // Get general info from Perplexity
         const generalInfo = await getGeneralStartupInfo(url);
@@ -32,5 +41,3 @@ async function extractStartupInfo(url) {
         throw error;
     }
 }
-
-module.exports = { extractStartupInfo };

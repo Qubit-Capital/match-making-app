@@ -2,11 +2,12 @@ import * as z from "zod"
 import { INDUSTRIES, VERTICALS } from '@/lib/constants'
 
 export const urlFormSchema = z.object({
-  url: z.string().refine((value) => {
-    // Allow domain-only URLs or full URLs
-    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-    return urlPattern.test(value);
-  }, { message: "Please enter a valid URL" }),
+    url: z.string().min(1, "URL is required").refine((value) => {
+      console.log('Input value:', value);
+      // This regex allows for domain names without protocol or www
+      const domainPattern = /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+      return domainPattern.test(value);
+    }, { message: "Please enter a valid domain name (e.g., example.com)" }),
 })
 
 export const startupInfoSchema = z.object({

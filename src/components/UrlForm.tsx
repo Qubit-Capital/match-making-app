@@ -1,16 +1,10 @@
 import React from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from 'zod';
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-const urlSchema = z.object({
-  url: z.string().url("Please enter a valid URL"),
-});
-
-type UrlFormValues = z.infer<typeof urlSchema>;
+import { urlFormSchema, UrlFormValues } from "@/lib/schema";
 
 type UrlFormProps = {
   onSubmit: (data: UrlFormValues) => void;
@@ -19,15 +13,20 @@ type UrlFormProps = {
 
 export function UrlForm({ onSubmit, isLoading }: UrlFormProps) {
   const form = useForm<UrlFormValues>({
-    resolver: zodResolver(urlSchema),
+    resolver: zodResolver(urlFormSchema),
     defaultValues: {
       url: "",
     },
   });
 
+  const handleSubmit = (data: UrlFormValues) => {
+    console.log("Submitting URL:", data.url);
+    onSubmit(data);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
         <FormField
           control={form.control}
           name="url"
@@ -35,7 +34,7 @@ export function UrlForm({ onSubmit, isLoading }: UrlFormProps) {
             <FormItem>
               <FormLabel>Startup Website URL</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="https://yourstartup.com" />
+                <Input {...field} placeholder="example.com" />
               </FormControl>
               <FormMessage />
             </FormItem>
