@@ -23,6 +23,7 @@ jobs:
           cd /qubit_app/match-making-app/staging/match-making-app &&
           git pull origin development &&
           npm install &&
+          npm run build &&
           pm2 restart staging-app || pm2 start npm --name "staging-app" -- start -- -p 3000
         '
         rm -f server_key.pem
