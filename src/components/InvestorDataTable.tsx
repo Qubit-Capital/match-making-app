@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -8,6 +8,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from 'lucide-react';
 
 interface InvestorData {
   _id: string;
@@ -15,8 +24,7 @@ interface InvestorData {
   investor_type: string;
   hq_location: string;
   total_investments: number;
-  preferred_vertical: string[];
-  preferred_industry: string[];
+  investmentCounts: Record<string, number>;
 }
 
 interface InvestorDataTableProps {
@@ -24,49 +32,198 @@ interface InvestorDataTableProps {
 }
 
 export function InvestorDataTable({ data }: InvestorDataTableProps) {
-  const [filter, setFilter] = React.useState("");
+  const [filter, setFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const itemsPerPage = 5;
+
+  const allInvestmentCountKeys = useMemo(() => {
+    const keySet = new Set<string>();
+    data.forEach(investor => {
+      Object.keys(investor.investmentCounts).forEach(key => keySet.add(key));
+    });
+    return Array.from(keySet);
+  }, [data]);
 
   const filteredData = data.filter(investor =>
     investor.website.toLowerCase().includes(filter.toLowerCase()) ||
     investor.investor_type.toLowerCase().includes(filter.toLowerCase())
   );
 
+  const pageCount = Math.ceil(filteredData.length / itemsPerPage);
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const toggleRowSelection = (id: string) => {
+    setSelectedRows(prev =>
+      prev.includes(id) ? prev.filter(rowId => rowId !== id) : [...prev, id]
+    );
+  };
+
+  const toggleAllRows = () => {
+    if (selectedRows.length === paginatedData.length) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(paginatedData.map(investor => investor._id));
+    }
+  };
+
+  const copySelectedData = () => {
+    const selectedData = filteredData.filter(investor => selectedRows.includes(investor._id));
+    const csvContent = [
+      ["Website", "Investor Type", "HQ Location", "Total Investments", ...allInvestmentCountKeys].join(","),
+      ...selectedData.map(investor => [
+        investor.website,
+        investor.investor_type,
+        investor.hq_location,
+        investor.total_investments,
+        ...allInvestmentCountKeys.map(key => investor.investmentCounts[key] || "")
+      ].join(","))
+    ].join("\n");
+
+    navigator.clipboard.writeText(csvContent);
+  };
+
+  const downloadSelectedData = () => {
+    const selectedData = filteredData.filter(investor => selectedRows.includes(investor._id));
+    const csvContent = [
+      ["Website", "Investor Type", "HQ Location", "Total Investments", ...allInvestmentCountKeys].join(","),
+      ...selectedData.map(investor => [
+        investor.website,
+        investor.investor_type,
+        investor.hq_location,
+        investor.total_investments,
+        ...allInvestmentCountKeys.map(key => investor.investmentCounts[key] || "")
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "investor_data.csv");
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <Input
-        placeholder="Filter investors..."
-        value={filter}
-        onChange={(event) => setFilter(event.target.value)}
-        className="max-w-sm"
-      />
+      <div className="flex justify-between items-center">
+        <Input
+          placeholder="Filter investors..."
+          value={filter}
+          onChange={(event) => setFilter(event.target.value)}
+          className="max-w-sm"
+        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">
+              Columns <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onSelect={() => {}}>
+              Website
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => {}}>
+              Investor Type
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => {}}>
+              HQ Location
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => {}}>
+              Total Investments
+            </DropdownMenuItem>
+            {allInvestmentCountKeys.map(key => (
+              <DropdownMenuItem key={key} onSelect={() => {}}>
+                {key}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={selectedRows.length === paginatedData.length}
+                  onCheckedChange={toggleAllRows}
+                />
+              </TableHead>
               <TableHead>Website</TableHead>
               <TableHead>Investor Type</TableHead>
               <TableHead>HQ Location</TableHead>
               <TableHead>Total Investments</TableHead>
-              <TableHead>Preferred Verticals</TableHead>
-              <TableHead>Preferred Industries</TableHead>
+              {allInvestmentCountKeys.map(key => (
+                <TableHead key={key}>{key}</TableHead>
+              ))}
+              <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.map((investor) => (
+            {paginatedData.map((investor) => (
               <TableRow key={investor._id}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedRows.includes(investor._id)}
+                    onCheckedChange={() => toggleRowSelection(investor._id)}
+                  />
+                </TableCell>
                 <TableCell className="font-medium">{investor.website}</TableCell>
                 <TableCell>{investor.investor_type}</TableCell>
                 <TableCell>{investor.hq_location}</TableCell>
                 <TableCell>{investor.total_investments}</TableCell>
-                <TableCell>{investor.preferred_vertical.join(", ")}</TableCell>
-                <TableCell>{investor.preferred_industry.join(", ")}</TableCell>
+                {allInvestmentCountKeys.map(key => (
+                  <TableCell key={key}>{investor.investmentCounts[key] || "-"}</TableCell>
+                ))}
+                <TableCell>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    ...
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
-      <div className="text-sm text-muted-foreground">
-        Showing {filteredData.length} of {data.length} investors
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          {selectedRows.length} of {filteredData.length} row(s) selected.
+        </div>
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, pageCount))}
+            disabled={currentPage === pageCount}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+      <div className="space-x-2">
+        <Button onClick={copySelectedData} disabled={selectedRows.length === 0}>
+          Copy Selected
+        </Button>
+        <Button onClick={downloadSelectedData} disabled={selectedRows.length === 0}>
+          Download Selected CSV
+        </Button>
       </div>
     </div>
   );
