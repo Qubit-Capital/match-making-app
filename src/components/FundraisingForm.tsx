@@ -1,4 +1,3 @@
-// components/FundraisingForm.tsx
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -123,7 +122,7 @@ export function FundraisingForm({ initialData, onSubmit }: FundraisingFormProps)
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">Submit</Button>
+        <Button type="submit" className="w-full">Match Investors</Button>
       </form>
     </Form>
   )
