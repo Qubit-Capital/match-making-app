@@ -16,7 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Copy, Download } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 
@@ -120,7 +120,7 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
 
   const renderPaginationButtons = () => {
     const buttons = [];
-    const maxButtons = 5;
+    const maxButtons = 3;
     let start = Math.max(1, currentPage - 2);
     let end = Math.min(pageCount, start + maxButtons - 1);
 
@@ -200,20 +200,20 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onSelect={() => {}}>
+            <DropdownMenuItem>
               Website
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => {}}>
+            <DropdownMenuItem>
               Investor Type
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => {}}>
+            <DropdownMenuItem>
               HQ Location
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => {}}>
+            <DropdownMenuItem>
               Total Investments
             </DropdownMenuItem>
             {allInvestmentCountKeys.map(key => (
-              <DropdownMenuItem key={key} onSelect={() => {}}>
+              <DropdownMenuItem key={key}>
                 {key}
               </DropdownMenuItem>
             ))}
@@ -221,54 +221,55 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
         </DropdownMenu>
       </div>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]">
-                <Checkbox
-                  checked={selectedRows.length === paginatedData.length}
-                  onCheckedChange={toggleAllRows}
-                />
-              </TableHead>
-              <TableHead>Website</TableHead>
-              <TableHead>Investor Type</TableHead>
-              <TableHead>HQ Location</TableHead>
-              <TableHead>Total Investments</TableHead>
-              {allInvestmentCountKeys.map(key => (
-                <TableHead key={key}>{key}</TableHead>
-              ))}
-              <TableHead className="w-[50px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedData.map((investor) => (
-              <TableRow key={investor._id}>
-                <TableCell>
+        <div className="h-[400px] overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[50px]">
                   <Checkbox
-                    checked={selectedRows.includes(investor._id)}
-                    onCheckedChange={() => toggleRowSelection(investor._id)}
+                    checked={selectedRows.length === paginatedData.length}
+                    onCheckedChange={toggleAllRows}
                   />
-                </TableCell>
-                <TableCell className="font-medium">{investor.website}</TableCell>
-                <TableCell>{investor.investor_type}</TableCell>
-                <TableCell>{investor.hq_location}</TableCell>
-                <TableCell>{investor.total_investments}</TableCell>
+                </TableHead>
+                <TableHead>Website</TableHead>
+                <TableHead>Investor Type</TableHead>
+                <TableHead>HQ Location</TableHead>
+                <TableHead>Total Investments</TableHead>
                 {allInvestmentCountKeys.map(key => (
-                  <TableCell key={key}>{investor.investmentCounts[key] || "-"}</TableCell>
+                  <TableHead key={key}>{key}</TableHead>
                 ))}
-                <TableCell>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    ...
-                  </Button>
-                </TableCell>
+                <TableHead className="w-[50px]"></TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {paginatedData.map((investor) => (
+                <TableRow key={investor._id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedRows.includes(investor._id)}
+                      onCheckedChange={() => toggleRowSelection(investor._id)}
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium">{investor.website}</TableCell>
+                  <TableCell>{investor.investor_type}</TableCell>
+                  <TableCell>{investor.hq_location}</TableCell>
+                  <TableCell>{investor.total_investments}</TableCell>
+                  {allInvestmentCountKeys.map(key => (
+                    <TableCell key={key}>{investor.investmentCounts[key] || "-"}</TableCell>
+                  ))}
+                  <TableCell>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      ...
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
+        <div className="flex items-center space-x-4">
           <Select
             value={itemsPerPage.toString()}
             onValueChange={(value) => {
@@ -276,7 +277,7 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
               setCurrentPage(1);
             }}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="w-[70px]">
               <SelectValue placeholder={itemsPerPage} />
             </SelectTrigger>
             <SelectContent side="top">
@@ -288,20 +289,21 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
             </SelectContent>
           </Select>
         </div>
-        <div className="space-x-2 flex items-center">
-          <div className="text-sm text-muted-foreground mr-4">
-            {selectedRows.length} of {filteredData.length} row(s) selected.
-          </div>
+        <div className="space-x-2">
           {renderPaginationButtons()}
         </div>
       </div>
-      <div className="space-x-2">
-        <Button onClick={copySelectedData} disabled={selectedRows.length === 0}>
-          Copy Selected
+      <div className="text-sm text-muted-foreground">
+          {selectedRows.length} of {filteredData.length} row(s) selected
+      </div>
+      <div className="flex justify-end space-x-2">
+      <Button className="h-8 w-8 p-0 flex justify-center items-center" variant="ghost">
+        <Copy className="h-4 w-4" />
         </Button>
-        <Button onClick={downloadSelectedData} disabled={selectedRows.length === 0}>
-          Download Selected CSV
-        </Button>
+
+        <Button className="h-8 w-8 p-0 flex justify-center items-center" variant="ghost">
+        <Download className="h-4 w-4" />
+      </Button>
       </div>
     </div>
   );
