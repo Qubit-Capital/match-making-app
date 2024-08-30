@@ -299,11 +299,11 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
           {selectedRows.length} of {filteredData.length} row(s) selected
       </div>
       <div className="flex justify-end space-x-2">
-      <Button className="h-8 w-8 p-0 flex justify-center items-center" variant="ghost">
+      <Button className="h-8 w-8 p-0 flex justify-center items-center" onClick={copySelectedData} disabled={selectedRows.length === 0}>
         <Copy className="h-4 w-4" />
         </Button>
 
-        <Button className="h-8 w-8 p-0 flex justify-center items-center" variant="ghost">
+        <Button className="h-8 w-8 p-0 flex justify-center items-center" onClick={downloadSelectedData} disabled={selectedRows.length === 0}>
         <Download className="h-4 w-4" />
       </Button>
       </div>
