@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import TestFeature from '@/components/TestFeature';
 
 export default function Home() {
   const { user, isLoading } = useAuth();
@@ -34,6 +35,9 @@ export default function Home() {
           Login
         </Link>
       </div>
+      <div>
+      <TestFeature />
+    </div>
     </main>
   );
 }
