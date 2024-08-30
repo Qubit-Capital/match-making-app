@@ -4,6 +4,7 @@ import LogoutButton from '@/components/LogoutButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { UrlForm } from '@/components/UrlForm';
 import { StartupInfoForm } from '@/components/StartupInfoForm';
+import { FundraisingForm } from '@/components/FundraisingForm';
 import { Button } from "@/components/ui/button";
 
 const Dashboard: React.FC = () => {
@@ -35,8 +36,27 @@ const Dashboard: React.FC = () => {
 
   const handleStartupInfoSubmit = (data) => {
     console.log("Startup info submitted:", data);
+    setStartupInfo({ ...startupInfo, ...data });
+    setStep(3);
+  };
+
+  const handleFundraisingSubmit = (data) => {
+    console.log("Fundraising info submitted:", data);
     // Here you would typically send this data to your backend
     // or move to the next step in your process
+  };
+
+  const getStepTitle = () => {
+    switch (step) {
+      case 1:
+        return "Enter your startup's website to get started";
+      case 2:
+        return "Review and edit your startup's information";
+      case 3:
+        return "Enter your fundraising details";
+      default:
+        return "";
+    }
   };
 
   return (
@@ -48,22 +68,28 @@ const Dashboard: React.FC = () => {
       <Card className="w-[600px] max-w-full mb-8 mt-8">
         <CardHeader>
           <CardTitle>Investor Matchmaker</CardTitle>
-          <CardDescription>
-            {step === 1 ? "Enter your startup's website to get started" : "Review and edit your startup's information"}
-          </CardDescription>
+          <CardDescription>{getStepTitle()}</CardDescription>
         </CardHeader>
         <CardContent>
-          {step === 1 ? (
-            <UrlForm onSubmit={handleUrlSubmit} isLoading={isLoading} />
-          ) : (
-            <StartupInfoForm initialData={startupInfo} onSubmit={handleStartupInfoSubmit} />
+          {step === 1 && <UrlForm onSubmit={handleUrlSubmit} isLoading={isLoading} />}
+          {step === 2 && <StartupInfoForm initialData={startupInfo} onSubmit={handleStartupInfoSubmit} />}
+          {step === 3 && (
+            <FundraisingForm
+              initialData={{
+                fundAsk: startupInfo?.fundAsk || 0,
+                fundingStage: startupInfo?.fundingStage || "",
+                lastFundingAmount: startupInfo?.lastFundingRound?.amount || 0,
+                lastFundingStage: startupInfo?.lastFundingRound?.stage || "",
+              }}
+              onSubmit={handleFundraisingSubmit}
+            />
           )}
         </CardContent>
       </Card>
 
-      {step === 2 && (
-        <Button onClick={() => setStep(1)} className="mt-4">
-          Back to URL Input
+      {step > 1 && (
+        <Button onClick={() => setStep(step - 1)} className="mt-4">
+          Back
         </Button>
       )}
     </div>
