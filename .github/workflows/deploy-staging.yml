@@ -20,7 +20,7 @@ jobs:
         echo "$PEM_FILE" > server_key.pem
         chmod 600 server_key.pem
         ssh -o StrictHostKeyChecking=no -i server_key.pem ${USER}@${HOST} '
-          cd /qubit_app/match-making-app/staging/match-making-app &&
+          cd qubit_app/match-making-app/staging/match-making-app &&
           git pull origin development &&
           npm install &&
           npm run build &&
