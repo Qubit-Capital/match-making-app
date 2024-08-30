@@ -82,7 +82,7 @@ export async function sendVerificationEmail(to: string, token: string) {
     const poller = await emailClient.beginSend(message);
     const response = await poller.pollUntilDone();
     console.log('Verification email sent successfully', response);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending verification email:', error);
     if (error.response) {
       console.error('Azure API responded with:', error.response);
@@ -137,7 +137,7 @@ export async function sendPasswordResetEmail(to: string, token: string) {
     const poller = await emailClient.beginSend(message);
     const response = await poller.pollUntilDone();
     console.log('Password reset email sent successfully', response);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending password reset email:', error);
     if (error.response) {
       console.error('Azure API responded with:', error.response);
