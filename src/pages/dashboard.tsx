@@ -8,6 +8,7 @@ import { FundraisingForm } from '@/components/FundraisingForm';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { InvestorDataTable } from '@/components/InvestorDataTable';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -15,7 +16,8 @@ const Dashboard: React.FC = () => {
   const [url, setUrl] = useState("");
   const [startupInfo, setStartupInfo] = useState<Record<string, unknown>>({});
   const [step, setStep] = useState(1);
-  const totalSteps = 3;
+  const [matchedInvestors, setMatchedInvestors] = useState([]);
+  const totalSteps = 4;
 
   const handleUrlSubmit = async (data: { url: string }) => {
     setIsLoading(true);
@@ -43,22 +45,32 @@ const Dashboard: React.FC = () => {
     setStep(3);
   };
 
-  const handleFundraisingSubmit = (data: Record<string, unknown>) => {
+  const handleFundraisingSubmit = async (data: Record<string, unknown>) => {
     console.log("Fundraising info submitted:", data);
-    // Here you would typically send this data to your backend
-    // or move to the next step in your process
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/matchmaking/investor-matcher', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...startupInfo, ...data }),
+      });
+      const matchedInvestorsData = await response.json();
+      setMatchedInvestors(matchedInvestorsData);
+      setStep(4);
+    } catch (error) {
+      console.error("Error matching investors:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getStepTitle = () => {
     switch (step) {
-      case 1:
-        return "Enter your startup's website to get started";
-      case 2:
-        return "Review and edit your startup's information";
-      case 3:
-        return "Enter your fundraising details";
-      default:
-        return "";
+      case 1: return "Enter your startup's website to get started";
+      case 2: return "Review and edit your startup's information";
+      case 3: return "Enter your fundraising details";
+      case 4: return "Matched Investors";
+      default: return "";
     }
   };
 
@@ -76,14 +88,11 @@ const Dashboard: React.FC = () => {
 
   const getButtonLabel = (direction: 'back' | 'forward') => {
     switch (step) {
-      case 1:
-        return direction === 'forward' ? 'Startup Info' : '';
-      case 2:
-        return direction === 'forward' ? 'Fundraising' : 'URL Input';
-      case 3:
-        return direction === 'back' ? 'Startup Info' : '';
-      default:
-        return '';
+      case 1: return direction === 'forward' ? 'Startup Info' : '';
+      case 2: return direction === 'forward' ? 'Fundraising' : 'URL Input';
+      case 3: return direction === 'back' ? 'Startup Info' : '';
+      case 4: return direction === 'back' ? 'Fundraising' : '';
+      default: return '';
     }
   };
 
@@ -122,9 +131,10 @@ const Dashboard: React.FC = () => {
                 onSubmit={handleFundraisingSubmit}
               />
             )}
+            {step === 4 && <InvestorDataTable data={matchedInvestors} />}
           </CardContent>
         </Card>
-        
+
         <div className="flex justify-between w-[600px] max-w-full">
           {step > 1 && (
             <Button 
