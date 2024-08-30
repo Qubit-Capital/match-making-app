@@ -1,4 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import { z } from 'zod'
+import { zodResponseFormat } from 'openai/helpers/zod';
 import { MongoClient, ObjectId } from 'mongodb'
 import { OpenAI } from 'openai'
 
@@ -9,7 +10,7 @@ const openai = new OpenAI({
 const mongoUri = process.env.MONGODB_URI
 const dbName = 'InvestorData'
 
-let investmentsCollection: any, investorsCollection: any
+let investmentsCollection, investorsCollection;
 
 async function connectToMongo() {
     const client = new MongoClient(mongoUri);
@@ -154,8 +155,7 @@ async function fetchInvestors(mappedData) {
     return detailedInvestors;
 }
 
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' })
   }
