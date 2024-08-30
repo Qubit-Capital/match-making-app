@@ -3,6 +3,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import clientPromise from '@/lib/mongodb';
 import { compare } from 'bcryptjs';
+import { User } from '@/models/User';
+import { ObjectId } from 'mongodb';
 
 export default NextAuth({
   adapter: MongoDBAdapter(clientPromise),
@@ -61,8 +63,11 @@ export default NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id;
+      if (token && session.user) {
+        const user = session.user as User;
+        if (token.id instanceof ObjectId) {
+          user.id = token.id;
+        }
       }
       return session;
     },

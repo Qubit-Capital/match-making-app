@@ -15,10 +15,12 @@ export default async function handler(
     return res.status(400).json({ message: 'Email is required' });
   }
 
+  type NewType = Error;
+
   try {
     await sendVerificationEmail(email, 'test-token');
     res.status(200).json({ message: 'Test email sent successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending test email:', error);
     res
       .status(500)
