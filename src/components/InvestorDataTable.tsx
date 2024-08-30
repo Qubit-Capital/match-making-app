@@ -48,8 +48,10 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
   }, [data]);
 
   const filteredData = data.filter(investor =>
-    investor.website.toLowerCase().includes(filter.toLowerCase()) ||
-    investor.investor_type.toLowerCase().includes(filter.toLowerCase())
+    investor && (
+      investor.website?.toLowerCase().includes(filter.toLowerCase()) ||
+      investor.investor_type?.toLowerCase().includes(filter.toLowerCase())
+    )
   );
 
   const pageCount = Math.ceil(filteredData.length / itemsPerPage);
