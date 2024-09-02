@@ -161,6 +161,7 @@ export function StartupInfoForm({ initialData, onSubmit, onNext, onBack }: Start
         </Button>
         <Button 
           onClick={form.handleSubmit(handleSubmit)}
+          variant="outline"
           className="flex items-center space-x-2"
         >
           <span>Fundraising Details</span>
