@@ -32,7 +32,7 @@ export function UrlForm({ onSubmit, isLoading, onNext }: UrlFormProps) {
       <Card>
         <CardHeader>
           <CardTitle>Investor Matchmaker</CardTitle>
-          <CardDescription>Enter your startup's website to get started</CardDescription>
+          <CardDescription>Enter your startup&apos;s website to get started</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>

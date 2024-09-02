@@ -44,6 +44,7 @@ export async function extractStructuredData(generalInfo: string, websiteContent:
     Industries: ${INDUSTRIES.join(', ')}
 
     Verticals: ${VERTICALS.join(', ')}
+    Note: Digital Health vertical refers to healthcare solutions digitally.
 
     Important: Always provide at least one industry and one vertical that best describes the startup, even if it's not an exact match. If the startup's focus doesn't precisely fit the predefined categories, choose the closest matches or use a combination of categories that best represent the startup's domain.
 
@@ -55,7 +56,7 @@ export async function extractStructuredData(generalInfo: string, websiteContent:
     
     startupLocations are the locations where the company is located or primarily operates in. Map relevant country codes.
     
-    targetLocations are the locations where the company wants to raise funds from. targetLocations are another version of startupLocations.
+    targetLocations are the same startupLocations mapped to one or multiple of these: US, UK, Europe, India, Canada, Germany and UAE.
 
     If there were no previous funding round, fundAsk could be between 0.5 to 2. If previous funding was <1 million $, fund ask could be 1 to 3. If previous funding was between 1 to 5 million $, fund ask could be 5 to 10. If previous funding was between 5 to 10 million $, fund ask could be 10 to 20. If previous funding was >10 million $, fund ask could be 2 to 4 times of last funding amount.
 

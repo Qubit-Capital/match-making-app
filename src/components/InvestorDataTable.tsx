@@ -26,9 +26,10 @@ interface InvestorData {
 
 interface InvestorDataTableProps {
   data: InvestorData[];
+  onBack: () => void;
 }
 
-export function InvestorDataTable({ data }: InvestorDataTableProps) {
+export function InvestorDataTable({ data, onBack }: InvestorDataTableProps) {
   const [filter, setFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
@@ -71,34 +72,45 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
 
   const escapeCSV = (value: string | number) => {
     if (typeof value === 'string') {
-      return `"${value.replace(/"/g, '""')}"`;
+      return value.replace(/\t/g, ' ').replace(/\n/g, ' ');
     }
     return value;
   };
 
   const generateCSVContent = (selectedData: InvestorData[]) => {
     const headers = ["Website", "Investor Type", "HQ Location", "Total Investments", ...allInvestmentCountKeys];
-    const csvRows = [
-      headers.map(escapeCSV).join(","),
+    const tsvRows = [
+      headers.map(escapeCSV).join('\t'),
       ...selectedData.map(investor => [
         investor.website,
         investor.investor_type,
         investor.hq_location,
         investor.total_investments,
         ...allInvestmentCountKeys.map(key => investor.investmentCounts[key] || "")
-      ].map(escapeCSV).join(","))
+      ].map(escapeCSV).join('\t'))
     ];
-    return csvRows.join("\n");
+    return tsvRows.join("\n");
   };
 
   const copySelectedData = () => {
     const selectedData = filteredData.filter(investor => selectedRows.includes(investor._id));
-    const csvContent = generateCSVContent(selectedData);
+    const tsvContent = generateCSVContent(selectedData);
 
-    navigator.clipboard.writeText(csvContent);
+    // Create a temporary textarea element to hold the TSV content
+    const tempTextArea = document.createElement('textarea');
+    tempTextArea.value = tsvContent;
+    document.body.appendChild(tempTextArea);
+
+    // Select and copy the content
+    tempTextArea.select();
+    document.execCommand('copy');
+
+    // Remove the temporary textarea
+    document.body.removeChild(tempTextArea);
+
     toast({
       title: "Copied to clipboard",
-      description: `${selectedData.length} investor${selectedData.length !== 1 ? 's' : ''} copied.`
+      description: `${selectedData.length} investor${selectedData.length !== 1 ? 's' : ''} copied. Paste into a spreadsheet for best results.`
     });
   };
 
@@ -186,13 +198,13 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
   };
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto space-y-4 p-4">
+    <div className="w-full max-w-[1400px] mx-auto space-y-4 px-2 sm:px-4">
       <Card className="w-full">
-        <CardHeader>
+        <CardHeader className="pb-4">
           <CardTitle>Investor Matches</CardTitle>
           <CardDescription>Review and select potential investors for your startup</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 sm:px-4">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <Input
@@ -221,7 +233,7 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
               </div>
             </div>
             <div className="rounded-md border">
-              <div className="relative h-[400px] overflow-hidden">
+              <div className="relative h-[500px] overflow-auto">
                 <Table>
                   <TableHeader className="sticky top-0 bg-background z-10">
                     <TableRow>
@@ -231,45 +243,41 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
                           onCheckedChange={toggleAllRows}
                         />
                       </TableHead>
-                      <TableHead>Website</TableHead>
-                      <TableHead>Investor Type</TableHead>
-                      <TableHead>HQ Location</TableHead>
-                      <TableHead>Total Investments</TableHead>
+                      <TableHead className="w-[250px]">Website</TableHead>
+                      <TableHead className="w-[250px]">Investor Type</TableHead>
+                      <TableHead className="w-[250px]">HQ Location</TableHead>
+                      <TableHead className="w-[150px]">Total Investments</TableHead>
                       {allInvestmentCountKeys.map(key => (
-                        <TableHead key={key}>{key}</TableHead>
+                        <TableHead key={key} className="w-[150px]">{key}</TableHead>
                       ))}
                       <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
                   </TableHeader>
+                  <TableBody>
+                    {paginatedData.map((investor) => (
+                      <TableRow key={investor._id}>
+                        <TableCell className="w-[50px]">
+                          <Checkbox
+                            checked={selectedRows.includes(investor._id)}
+                            onCheckedChange={() => toggleRowSelection(investor._id)}
+                          />
+                        </TableCell>
+                        <TableCell className="w-[250px]">{investor.website}</TableCell>
+                        <TableCell className="w-[250px]">{investor.investor_type}</TableCell>
+                        <TableCell className="w-[250px]">{investor.hq_location}</TableCell>
+                        <TableCell className="w-[150px]">{investor.total_investments}</TableCell>
+                        {allInvestmentCountKeys.map(key => (
+                          <TableCell key={key} className="w-[150px]">{investor.investmentCounts[key] || "-"}</TableCell>
+                        ))}
+                        <TableCell className="w-[50px]">
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            ...
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
                 </Table>
-                <div className="overflow-auto h-[calc(400px-2.5rem)]">
-                  <Table>
-                    <TableBody>
-                      {paginatedData.map((investor) => (
-                        <TableRow key={investor._id}>
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedRows.includes(investor._id)}
-                              onCheckedChange={() => toggleRowSelection(investor._id)}
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">{investor.website}</TableCell>
-                          <TableCell>{investor.investor_type}</TableCell>
-                          <TableCell>{investor.hq_location}</TableCell>
-                          <TableCell>{investor.total_investments}</TableCell>
-                          {allInvestmentCountKeys.map(key => (
-                            <TableCell key={key}>{investor.investmentCounts[key] || "-"}</TableCell>
-                          ))}
-                          <TableCell>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              ...
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -305,7 +313,7 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
       </Card>
       <div className="flex justify-start mt-4">
         <Button 
-          onClick={() => {/* Add your back navigation logic here */}}
+          onClick={onBack}
           variant="outline"
           className="flex items-center space-x-2"
         >

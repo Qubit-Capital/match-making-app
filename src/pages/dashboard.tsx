@@ -6,6 +6,7 @@ import { StartupInfoForm } from '@/components/StartupInfoForm';
 import { FundraisingForm } from '@/components/FundraisingForm';
 import { InvestorDataTable } from '@/components/InvestorDataTable';
 import { StartupInfoValues, FundraisingValues } from '@/lib/schema';
+import Image from 'next/image';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -61,6 +62,7 @@ const Dashboard: React.FC = () => {
     console.log("Startup info submitted:", data);
     setStartupInfo(data);
     setStep(3);
+
   };
 
   const handleFundraisingSubmit = async (data: FundraisingValues) => {
@@ -92,11 +94,23 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleBackToFundraising = () => {
+    setStep(3);
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <div className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="Company Logo"
+              width={150}
+              height={40}
+              priority
+            />
+          </div>
           <div className="flex items-center space-x-4">
             <p>Welcome, {user?.name || user?.email}</p>
             <LogoutButton />
@@ -131,10 +145,7 @@ const Dashboard: React.FC = () => {
         {step === 4 && (
           <InvestorDataTable 
             data={matchedInvestors} 
-            onBack={() => {
-              handleBack();
-              // We don't need to clear matchedInvestors here
-            }} 
+            onBack={handleBackToFundraising}
           />
         )}
       </main>

@@ -60,7 +60,7 @@ export function StartupInfoForm({ initialData, onSubmit, onNext, onBack }: Start
       <Card>
         <CardHeader>
           <CardTitle>Startup Details</CardTitle>
-          <CardDescription>Review and edit your startup's information</CardDescription>
+          <CardDescription>Review and edit your startup&apos;s information</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
