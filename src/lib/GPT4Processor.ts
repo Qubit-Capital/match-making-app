@@ -1,24 +1,32 @@
 import OpenAI from "openai";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
-import { VERTICALS, INDUSTRIES } from './constants';
+import { VERTICALS, INDUSTRIES, LOCATIONS } from './constants';
+import { countries } from 'countries-list' 
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Create an array of country options
+const countryOptions = Object.entries(countries).map(([code, country]) => ({
+    label: country.name,
+    value: code,
+  }))
+
+const COUNTRY_NAMES = countryOptions.map(option => option.value) as [string, ...string[]];
+
 const StartupSchema = z.object({
     companyName: z.string(),
     industries: z.array(z.enum(INDUSTRIES)),
     verticals: z.array(z.enum(VERTICALS)),
-    startupLocation: z.string(),
+    startupLocations: z.array(z.enum(COUNTRY_NAMES)),
+    targetLocations: z.array(z.enum(LOCATIONS)),
     startupIntro: z.string(),
     fundAsk: z.number(),
-    fundingStage: z.enum(["Seed", "Series A", "Series B", "Series C", "Series D+"]),
-    lastFundingRound: z.object({
-        amount: z.number(),
-        stage: z.enum(["Bootstrapped", "Pre-seed", "Seed", "Series A", "Series B", "Series C", "Series D+"]),
-    }),
+    targetFundingStages: z.array(z.enum(["Seed", "Series A", "Beyond A"])),
+    lastFundingAmount: z.number(),
+    lastFundingStage: z.enum(["Bootstrapped", "Pre-seed", "Seed", "Series A", "Series B", "Series C", "Series D+"]),
 });
 
 export async function extractStructuredData(generalInfo: string, websiteContent: string) {
@@ -36,17 +44,25 @@ export async function extractStructuredData(generalInfo: string, websiteContent:
     Industries: ${INDUSTRIES.join(', ')}
 
     Verticals: ${VERTICALS.join(', ')}
+    Note: Digital Health vertical refers to healthcare solutions digitally.
 
     Important: Always provide at least one industry and one vertical that best describes the startup, even if it's not an exact match. If the startup's focus doesn't precisely fit the predefined categories, choose the closest matches or use a combination of categories that best represent the startup's domain.
 
     startupIntro gives an overview of the startup and describes what it does.
     
-    fundAsk and fundingStage are the estimated fund ask and funding stage of the startup basis, the last funding round primarily, also basis on what the company does and it's location. If the last funding round is Pre-seed or seed, fundingStage will be series A, if last is series A, fundingStage will be series B, and so on. Similarly, if the last funding round was 2 million, fundAsk could be 7 million, if the last finding round was 6 million, fundAsk could be 15 million, if the last funding round was 150, fundAsk could be 250. It would always be more than the last funding round.
-    If there were no previous funding round, fundAsk could be between 0.5 to 2 and fundingStage could be Seed or SeriesA.
+    fundAsk is the estimated fund ask and target.
+    
+    targetFundingStages are the funding stages which startup wants to target (to find investors who invest in these stages) basis the last funding round. If the last funding round is "Pre-seed" or "Bootstrapped", then target funding stages would be ["Seed"]. If the last funding round is "Seed", then target funding stages would be ["Series A"]. If the last funding round is "Series A" or "Series B" or "Series C" or "Series D+", then target funding stages would be ["Beyond A"].
+    
+    startupLocations are the locations where the company is located or primarily operates in. Map relevant country codes.
+    
+    targetLocations are the same startupLocations mapped to one or multiple of these: US, UK, Europe, India, Canada, Germany and UAE.
 
-    Provide the fundAsk and amount number in $millions. For example, instead of 3500000, provide 3.5.
+    If there were no previous funding round, fundAsk could be between 0.5 to 2. If previous funding was <1 million $, fund ask could be 1 to 3. If previous funding was between 1 to 5 million $, fund ask could be 5 to 10. If previous funding was between 5 to 10 million $, fund ask could be 10 to 20. If previous funding was >10 million $, fund ask could be 2 to 4 times of last funding amount.
 
-    For last funding round, provide only factual data, do not make it up. Use 0 and "Bootstrapped" as the default values.
+    Provide the fundAsk and lastFundingAmount number in $millions. For example, instead of 3500000, provide 3.5.
+
+    For last funding round, provide only factual data, do not make it up. Use 0 and "Bootstrapped" as the default values. Only deviate from default if previous funding round is clearly found in General Info or Website Content.
     `;
 
     try {

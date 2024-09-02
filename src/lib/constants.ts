@@ -104,3 +104,13 @@ export const INDUSTRIES = [
     "Metals, Minerals and Mining",
     "Textiles"
 ] as const
+
+export const LOCATIONS = [
+    "US",
+    "UK",
+    "Europe",
+    "Canada",
+    "Germany",
+    "UAE",
+    "India"
+] as const
