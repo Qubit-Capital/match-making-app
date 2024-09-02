@@ -74,3 +74,43 @@
     @apply bg-background text-foreground;
   }
 }
+
+.investor-data-table {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-areas:
+    "card-header"
+    "table-header"
+    "table-body"
+    "card-footer";
+  height: calc(100vh - var(--header-height));
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card-header {
+  grid-area: card-header;
+}
+
+.table-header {
+  grid-area: table-header;
+}
+
+.table-body-container {
+  grid-area: table-body;
+  position: relative;
+  overflow: hidden;
+}
+
+.table-body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+}
+
+.card-footer {
+  grid-area: card-footer;
+}
