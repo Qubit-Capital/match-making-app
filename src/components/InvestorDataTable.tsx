@@ -16,9 +16,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, ChevronLeft, ChevronRight, Copy, Download } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, Copy, Download, ArrowLeft } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface InvestorData {
   _id: string;
@@ -187,125 +188,154 @@ export function InvestorDataTable({ data }: InvestorDataTableProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <Input
-          placeholder="Filter investors..."
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem>
-              Website
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              Investor Type
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              HQ Location
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              Total Investments
-            </DropdownMenuItem>
-            {allInvestmentCountKeys.map(key => (
-              <DropdownMenuItem key={key}>
-                {key}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="rounded-md border">
-        <div className="h-[400px] overflow-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">
-                  <Checkbox
-                    checked={selectedRows.length === paginatedData.length}
-                    onCheckedChange={toggleAllRows}
-                  />
-                </TableHead>
-                <TableHead>Website</TableHead>
-                <TableHead>Investor Type</TableHead>
-                <TableHead>HQ Location</TableHead>
-                <TableHead>Total Investments</TableHead>
-                {allInvestmentCountKeys.map(key => (
-                  <TableHead key={key}>{key}</TableHead>
-                ))}
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData.map((investor) => (
-                <TableRow key={investor._id}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedRows.includes(investor._id)}
-                      onCheckedChange={() => toggleRowSelection(investor._id)}
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{investor.website}</TableCell>
-                  <TableCell>{investor.investor_type}</TableCell>
-                  <TableCell>{investor.hq_location}</TableCell>
-                  <TableCell>{investor.total_investments}</TableCell>
+    <div className="w-full max-w-[1200px] mx-auto space-y-4 p-4">
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Investor Matches</CardTitle>
+          <CardDescription>Review and select potential investors for your startup</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Input
+                placeholder="Filter investors..."
+                value={filter}
+                onChange={(event) => setFilter(event.target.value)}
+                className="max-w-sm"
+              />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    Columns <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>
+                    Website
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Investor Type
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    HQ Location
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Total Investments
+                  </DropdownMenuItem>
                   {allInvestmentCountKeys.map(key => (
-                    <TableCell key={key}>{investor.investmentCounts[key] || "-"}</TableCell>
+                    <DropdownMenuItem key={key}>
+                      {key}
+                    </DropdownMenuItem>
                   ))}
-                  <TableCell>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      ...
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Select
-            value={itemsPerPage.toString()}
-            onValueChange={(value) => {
-              setItemsPerPage(Number(value));
-              setCurrentPage(1);
-            }}
-          >
-            <SelectTrigger className="w-[70px]">
-              <SelectValue placeholder={itemsPerPage} />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {[10, 30, 100].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-x-2">
-          {renderPaginationButtons()}
-        </div>
-      </div>
-      <div className="text-sm text-muted-foreground">
-          {selectedRows.length} of {filteredData.length} row(s) selected
-      </div>
-      <div className="flex justify-end space-x-2">
-      <Button className="h-8 w-8 p-0 flex justify-center items-center" onClick={copySelectedData} disabled={selectedRows.length === 0}>
-        <Copy className="h-4 w-4" />
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <div className="rounded-md border">
+              <div className="h-[400px] overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[50px]">
+                        <Checkbox
+                          checked={selectedRows.length === paginatedData.length}
+                          onCheckedChange={toggleAllRows}
+                        />
+                      </TableHead>
+                      <TableHead>Website</TableHead>
+                      <TableHead>Investor Type</TableHead>
+                      <TableHead>HQ Location</TableHead>
+                      <TableHead>Total Investments</TableHead>
+                      {allInvestmentCountKeys.map(key => (
+                        <TableHead key={key}>{key}</TableHead>
+                      ))}
+                      <TableHead className="w-[50px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedData.map((investor) => (
+                      <TableRow key={investor._id}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedRows.includes(investor._id)}
+                            onCheckedChange={() => toggleRowSelection(investor._id)}
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium">{investor.website}</TableCell>
+                        <TableCell>{investor.investor_type}</TableCell>
+                        <TableCell>{investor.hq_location}</TableCell>
+                        <TableCell>{investor.total_investments}</TableCell>
+                        {allInvestmentCountKeys.map(key => (
+                          <TableCell key={key}>{investor.investmentCounts[key] || "-"}</TableCell>
+                        ))}
+                        <TableCell>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            ...
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Select
+                  value={itemsPerPage.toString()}
+                  onValueChange={(value) => {
+                    setItemsPerPage(Number(value));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-[70px]">
+                    <SelectValue placeholder={itemsPerPage} />
+                  </SelectTrigger>
+                  <SelectContent side="top">
+                    {[10, 30, 100].map((pageSize) => (
+                      <SelectItem key={pageSize} value={pageSize.toString()}>
+                        {pageSize}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-x-2">
+                {renderPaginationButtons()}
+              </div>
+            </div>
+            <div className="text-sm text-muted-foreground">
+                {selectedRows.length} of {filteredData.length} row(s) selected
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button 
+                className="flex items-center space-x-2" 
+                onClick={copySelectedData} 
+                disabled={selectedRows.length === 0}
+              >
+                <Copy className="h-4 w-4" />
+                <span>Copy Selected</span>
+              </Button>
+              <Button 
+                className="flex items-center space-x-2" 
+                onClick={downloadSelectedData} 
+                disabled={selectedRows.length === 0}
+              >
+                <Download className="h-4 w-4" />
+                <span>Download Selected</span>
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      <div className="flex justify-start mt-4">
+        <Button 
+          onClick={() => {/* Add your back navigation logic here */}}
+          variant="outline"
+          className="flex items-center space-x-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Fundraising Details</span>
         </Button>
-
-        <Button className="h-8 w-8 p-0 flex justify-center items-center" onClick={downloadSelectedData} disabled={selectedRows.length === 0}>
-        <Download className="h-4 w-4" />
-      </Button>
       </div>
     </div>
   );
