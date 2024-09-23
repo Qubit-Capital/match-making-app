@@ -5,7 +5,7 @@ export const urlFormSchema = z.object({
     url: z.string().min(1, "URL is required").refine((value) => {
       console.log('Input value:', value);
       // This regex allows for domain names without protocol or www
-      const domainPattern = /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+      const domainPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
       return domainPattern.test(value);
     }, { message: "Please enter a valid domain name (e.g., example.com)" }),
 })
