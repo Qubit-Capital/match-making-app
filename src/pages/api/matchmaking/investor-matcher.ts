@@ -20,7 +20,7 @@ interface Investor {
     [key: string]: any;
 }
 
-let investmentsCollection: any, investorsCollection: any;
+let investmentsCollection: any, investorsCollection: any, angelsCollection: any;
 
 async function connectToMongo() {
     const client = new MongoClient(mongoUri as string);
@@ -28,6 +28,7 @@ async function connectToMongo() {
     const db = client.db(dbName);
     investmentsCollection = db.collection('Investments');
     investorsCollection = db.collection('Investors');
+    angelsCollection = db.collection('Angels');
 }
 
 async function fetchInvestors(startupData: StartupInfoValues, fundraisingData: FundraisingValues) {
@@ -89,18 +90,41 @@ async function fetchInvestors(startupData: StartupInfoValues, fundraisingData: F
 
     console.log(`Fetched ${investors.length} investors from the database`);
 
-    // Combine investor details with investment counts and filter out investors with invalid websites
-    let detailedInvestors = investors
-        .filter(investor => investor.website && investor.website.trim() !== '')
-        .map(investor => ({
-            ...investor,
-            investmentCounts: investorData[investor._id.toString()].combinations
-        }));
+    // Fetch Angel investors if selected
+    let angelInvestors: any[] = [];
+    if (targetInvestors.includes("Angel Investor")) {
+        angelInvestors = await angelsCollection.find({
+            target_location: { $in: targetLocations }
+        })
+        .limit(1000)
+        .toArray();
+        console.log(`Fetched ${angelInvestors.length} angel investors from the database`);
+    }
+
+    // Combine investor details with investment counts
+    let detailedInvestors = [
+        ...investors
+            .filter(investor => investor.website && investor.website.trim() !== '')
+            .map(investor => ({
+                ...investor,
+                investmentCounts: investorData[investor._id.toString()].combinations
+            })),
+        ...angelInvestors.map(angel => ({
+            ...angel,
+            investor_type: "Angel Investor",
+            website: angel.name, // Use name instead of website for Angel investors
+            investmentCounts: angel.total_investments || 0
+        }))
+    ];
 
     // Sort investors by total investment count
     detailedInvestors.sort((a, b) => {
-        const totalA = Object.values(a.investmentCounts).reduce((sum, count) => sum + count, 0);
-        const totalB = Object.values(b.investmentCounts).reduce((sum, count) => sum + count, 0);
+        const totalA = a.investor_type === "Angel Investor" 
+            ? a.investmentCounts.total 
+            : Object.values(a.investmentCounts).reduce((sum, count) => sum + (count as number), 0);
+        const totalB = b.investor_type === "Angel Investor" 
+            ? b.investmentCounts.total 
+            : Object.values(b.investmentCounts).reduce((sum, count) => sum + (count as number), 0);
         return totalB - totalA;
     });
 
