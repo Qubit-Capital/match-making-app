@@ -7,6 +7,7 @@ import { FundraisingForm } from '@/components/FundraisingForm';
 import { InvestorDataTable } from '@/components/InvestorDataTable';
 import { StartupInfoValues, FundraisingValues } from '@/lib/schema';
 import Image from 'next/image';
+import { useRouter } from 'next/router'; // Import useRouter
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -15,6 +16,7 @@ const Dashboard: React.FC = () => {
   const [fundraisingInfo, setFundraisingInfo] = useState<Partial<FundraisingValues>>({});
   const [step, setStep] = useState(1);
   const [matchedInvestors, setMatchedInvestors] = useState([]);
+  const router = useRouter(); // Initialize useRouter
 
   const handleUrlSubmit = async (data: { url: string }) => {
     setIsLoading(true);
@@ -102,7 +104,7 @@ const Dashboard: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <div className="flex items-center">
+          <div className="flex items-center cursor-pointer" onClick={() => setStep(1)}> {/* Added onClick */}
             <Image
               src="/logo.png"
               alt="Company Logo"

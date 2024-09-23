@@ -32,7 +32,7 @@ async function connectToMongo() {
 
 async function fetchInvestors(startupData: StartupInfoValues, fundraisingData: FundraisingValues) {
     const { verticals } = startupData;
-    const { targetFundingStages, targetLocations } = fundraisingData;
+    const { targetFundingStages, targetLocations, targetInvestors } = fundraisingData;
 
     const combinations = verticals.flatMap(vertical => 
         targetFundingStages.flatMap(stage => 
@@ -70,6 +70,10 @@ async function fetchInvestors(startupData: StartupInfoValues, fundraisingData: F
         return [];
     }
 
+    // Prepare investor type filter
+    const investorTypeFilter = targetInvestors
+        .filter(type => type !== "Angel Investor");
+    
     // Fetch full investor details
     const investors: Investor[] = await investorsCollection.find({
         _id: { $in: investorIds.map(id => {
@@ -79,7 +83,8 @@ async function fetchInvestors(startupData: StartupInfoValues, fundraisingData: F
                 console.error(`Invalid ObjectId: ${id}`);
                 return null;
             }
-        }).filter((id): id is ObjectId => id !== null) }
+        }).filter((id): id is ObjectId => id !== null) },
+        ...(investorTypeFilter.length > 0 ? { investor_type: { $in: investorTypeFilter } } : {})
     }).toArray();
 
     console.log(`Fetched ${investors.length} investors from the database`);
