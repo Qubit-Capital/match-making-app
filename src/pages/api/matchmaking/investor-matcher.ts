@@ -121,10 +121,10 @@ async function fetchInvestors(startupData: StartupInfoValues, fundraisingData: F
     detailedInvestors.sort((a, b) => {
         const totalA = a.investor_type === "Angel Investor" 
             ? a.investmentCounts.total 
-            : Object.values(a.investmentCounts).reduce((sum, count) => sum + (count as number), 0);
+            : Object.values(a.investmentCounts).reduce((sum: number, count) => sum + (count as number), 0);
         const totalB = b.investor_type === "Angel Investor" 
             ? b.investmentCounts.total 
-            : Object.values(b.investmentCounts).reduce((sum, count) => sum + (count as number), 0);
+            : Object.values(b.investmentCounts).reduce((sum: number, count) => sum + (count as number), 0);
         return totalB - totalA;
     });
 
