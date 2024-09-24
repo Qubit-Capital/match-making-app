@@ -109,9 +109,11 @@ async function fetchInvestors(startupData: StartupInfoValues, fundraisingData: F
                 ...investor,
                 investmentCounts: investorData[investor._id.toString()].combinations
             })),
-        ...angelInvestors.map(angel => ({
-            ...angel,
-            investor_type: "Angel Investor",
+        ...angelInvestors
+            .filter(angel => angel.name && angel.name.trim() !== '')
+            .map(angel => ({
+                ...angel,
+                investor_type: "Angel Investor",
             website: angel.name, // Use name instead of website for Angel investors
             investmentCounts: angel.total_investments || 0
         }))
