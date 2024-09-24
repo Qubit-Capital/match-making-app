@@ -78,7 +78,7 @@ export function InvestorDataTable({ data, onBack }: InvestorDataTableProps) {
   };
 
   const generateCSVContent = (selectedData: InvestorData[]) => {
-    const headers = ["Website", "Investor Type", "HQ Location", "Total Investments", ...allInvestmentCountKeys];
+    const headers = ["Investor", "Investor Type", "HQ Location", "Total Investments", ...allInvestmentCountKeys];
     const tsvRows = [
       headers.map(escapeCSV).join('\t'),
       ...selectedData.map(investor => [
@@ -243,7 +243,7 @@ export function InvestorDataTable({ data, onBack }: InvestorDataTableProps) {
                           onCheckedChange={toggleAllRows}
                         />
                       </TableHead>
-                      <TableHead className="w-[250px]">Website</TableHead>
+                      <TableHead className="w-[250px]">Investor</TableHead>
                       <TableHead className="w-[250px]">Investor Type</TableHead>
                       <TableHead className="w-[250px]">HQ Location</TableHead>
                       <TableHead className="w-[150px]">Total Investments</TableHead>

@@ -52,6 +52,13 @@ const targetLocationOptions = [
   { label: "India", value: "India" },
 ]
 
+const targetInvestorOptions = [
+  { label: "Venture Capital", value: "Venture Capital" },
+  { label: "Corporate Venture Capital", value: "Corporate Venture Capital" },
+  { label: "Angel Investor", value: "Angel Investor" },
+  { label: "Family Office", value: "Family Office" },
+]
+
 export function FundraisingForm({ initialData, onSubmit, onNext, onBack }: FundraisingFormProps) {
   const form = useForm<FundraisingFormValues>({
     resolver: zodResolver(fundraisingSchema),
@@ -61,17 +68,22 @@ export function FundraisingForm({ initialData, onSubmit, onNext, onBack }: Fundr
       lastFundingAmount: 0,
       lastFundingStage: "Bootstrapped",
       targetLocations: [],
+      targetInvestors: [],
       ...initialData,
     },
   })
 
   const handleSubmit = (data: FundraisingFormValues) => {
-    if (data.targetFundingStages.length > 0 && data.targetLocations.length > 0) {
+    if (
+      data.targetFundingStages.length > 0 &&
+      data.targetLocations.length > 0 &&
+      data.targetInvestors.length > 0
+    ) {
       onSubmit(data)
       onNext()
     } else {
-      // Trigger validation for required fields
-      form.trigger(["targetFundingStages", "targetLocations"])
+      // Trigger validation for all required fields
+      form.trigger(["targetFundingStages", "targetLocations", "targetInvestors"])
     }
   }
 
@@ -85,20 +97,20 @@ export function FundraisingForm({ initialData, onSubmit, onNext, onBack }: Fundr
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="fundAsk"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fund Ask (million $)</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <div className="grid grid-cols-2 gap-4">
+              <FormField
+                  control={form.control}
+                  name="fundAsk"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fund Ask (million $)</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="lastFundingAmount"
@@ -112,7 +124,7 @@ export function FundraisingForm({ initialData, onSubmit, onNext, onBack }: Fundr
                     </FormItem>
                   )}
                 />
-                <FormField
+              <FormField
                   control={form.control}
                   name="lastFundingStage"
                   render={({ field }) => (
@@ -134,8 +146,6 @@ export function FundraisingForm({ initialData, onSubmit, onNext, onBack }: Fundr
                     </FormItem>
                   )}
                 />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="targetFundingStages"
@@ -168,6 +178,25 @@ export function FundraisingForm({ initialData, onSubmit, onNext, onBack }: Fundr
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                           placeholder="Select target locations"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="targetInvestors"
+                  rules={{ required: "Target Investors are required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Target Investors (Required)</FormLabel>
+                      <FormControl>
+                        <MultiSelect
+                          options={targetInvestorOptions}
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          placeholder="Select target investors"
                         />
                       </FormControl>
                       <FormMessage />
